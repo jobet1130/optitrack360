@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: DockerFile
+    container_name: optitrack_frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - optitrack_network
+    restart: unless-stopped
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
+
+  db:
+    image: postgres:16.3-alpine
+    container_name: optitrack_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - optitrack_network
+    env_file:
+      - .env
+
+networks:
+  optitrack_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
